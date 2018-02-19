@@ -166,7 +166,7 @@ func (sp *AwsScalingProvider) scaleIn(workerPool *structs.WorkerPool, config *st
 
 	if err = nomadClient.DrainNode(targetNode); err != nil {
 		return fmt.Errorf("an error occured while attempting to drain allocations"+
-			" from %v in %v", instanceID, workerPoolName)
+			" from %v in %v", instanceID, workerPool.Name)
 	}
 	// Once the node has been detached from the worker pool autoscaling group,
 	// terminate the instance.
