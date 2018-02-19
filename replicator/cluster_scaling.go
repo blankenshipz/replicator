@@ -205,18 +205,6 @@ func (s *Server) workerPoolScaling(id int, pools <-chan string,
 			logging.Info("core/cluster_scaling: placing node %v from worker pool %v "+
 				"in drain mode", nodeID, workerPool.Name)
 
-			if err = nomadClient.DrainNode(nodeID); err != nil {
-				logging.Error("core/cluster_scaling: an error occurred while "+
-					"attempting to place node %v from worker pool %v in drain mode: "+
-					"%v", nodeID, workerPool.Name, err)
-
-				metrics.IncrCounter([]string{"cluster", workerPool.Name, "scale_in",
-					"failure"}, 1)
-
-				wg.Done()
-				continue
-			}
-
 			// Initiate cluster scaling operation by calling the scaling provider.
 			err := workerPool.ScalingProvider.Scale(workerPool, s.config, nodeRegistry)
 			if err != nil {
