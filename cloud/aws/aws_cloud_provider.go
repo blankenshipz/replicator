@@ -129,6 +129,9 @@ func (sp *AwsScalingProvider) scaleIn(workerPool *structs.WorkerPool, config *st
 	// Setup client for Consul.
 	consulClient := config.ConsulClient
 
+	// Setup client for nomad.
+	nomadClient := config.NomadClient
+
 	// Pop a target node from the list of eligible nodes.
 	targetNode := workerPool.State.EligibleNodes[0]
 	workerPool.State.EligibleNodes =
@@ -161,6 +164,10 @@ func (sp *AwsScalingProvider) scaleIn(workerPool *structs.WorkerPool, config *st
 		}
 	}
 
+	if err = nomadClient.DrainNode(targetNode); err != nil {
+		return fmt.Errorf("an error occured while attempting to drain allocations"+
+			" from %v in %v", instanceID, workerPoolName)
+	}
 	// Once the node has been detached from the worker pool autoscaling group,
 	// terminate the instance.
 	err = terminateInstance(instanceID, workerPool.Region)
